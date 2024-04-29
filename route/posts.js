@@ -1,8 +1,9 @@
 const express = require("express");
-const {save} = require("../controller/posts");
+const {save, showPost} = require("../controller/posts");
 
 const router = express.Router();
 
 router.post('/post', save);
+router.get('/showPost/:id', showPost)
 
 module.exports = router;
