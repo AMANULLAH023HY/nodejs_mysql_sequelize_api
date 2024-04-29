@@ -1,3 +1,5 @@
+const validator = require("fastest-validator");
+
 const models = require("../models");
 
 // Insert the post controller
@@ -11,20 +13,37 @@ const insertController = async (req, res) => {
       userId: 1,
     };
 
+    // Validation schema
+
+    const schema = {
+      title: { type: "string", optional: false, max: "100", min:"5" },
+      content: { type: "string", optional: false, max: "500", min:"10" },
+      categoryId: { type: "number", optional: true },
+    };
+
+    const valid = new validator();
+
+    const validationResponse = valid.validate(post, schema);
+
+    if (validationResponse !== true) {
+      return res.status(400).json({
+        message: "Validation failed!",
+        error: validationResponse,
+      });
+    }
+
     // const newPost = await Post.create(post);
     const newPost = await models.Post.create(post);
-if(newPost){
-
-  res.status(201).json({
-    message: "Post created successfully!",
-    post: newPost,
-  });
-}else{
-  
-  res.status(404).json({
-    message: "Something went wrong!"
-  });
-}
+    if (newPost) {
+      res.status(201).json({
+        message: "Post created successfully!",
+        post: newPost,
+      });
+    } else {
+      res.status(404).json({
+        message: "Something went wrong!",
+      });
+    }
   } catch (error) {
     console.error("Error saving post:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -85,17 +104,14 @@ const updatePostsController = async (req, res) => {
       where: { id: id, userId: userId },
     });
 
-    if(modifyPost){
-
-      
+    if (modifyPost) {
       res.status(201).json({
         message: "Post updated successfully!",
         post: modifyPost,
       });
-    }else{
+    } else {
       res.status(404).json({
         message: "Something went wrong!",
-       
       });
     }
   } catch (error) {
@@ -106,29 +122,34 @@ const updatePostsController = async (req, res) => {
 
 // Post delete controller
 
-const deletePostsController = async(req,res)=>{
+const deletePostsController = async (req, res) => {
   const id = req.params.id;
-  const userId = 1; 
+  const userId = 1;
 
   try {
-
-    const deletePost = await models.Post.destroy({where:{id:id, userId:userId}}); 
+    const deletePost = await models.Post.destroy({
+      where: { id: id, userId: userId },
+    });
 
     if (deletePost) {
-      res.status(200).json({ 
-        message:"Post deleted successfully"
-       });
+      res.status(200).json({
+        message: "Post deleted successfully",
+      });
     } else {
       res.status(404).json({
         message: "Post not found",
       });
     }
-    
   } catch (error) {
     console.error("Error delete post:", error);
     res.status(500).json({ error: "Internal server error" });
-  
   }
-}
+};
 
-module.exports = { insertController, getSinglePostController, getAllPostController,updatePostsController,deletePostsController };
+module.exports = {
+  insertController,
+  getSinglePostController,
+  getAllPostController,
+  updatePostsController,
+  deletePostsController,
+};
