@@ -1,5 +1,6 @@
 const models = require("../models");
 
+// Insert the post controller
 const save = async (req, res) => {
   try {
     const post = {
@@ -23,7 +24,9 @@ const save = async (req, res) => {
   }
 };
 
-const showPost = async (req, res) => {
+// Show the post by id
+
+const getSinglePost = async (req, res) => {
   const id = req.params.id;
 
   try {
@@ -39,4 +42,31 @@ const showPost = async (req, res) => {
   }
 };
 
-module.exports = { save, showPost };
+// show the all post
+const getAllPost = async (req, res) => {
+  try {
+    const post = await models.Post.findAll();
+    if (post) {
+      res.status(200).json({ post });
+    } else {
+      res.status(404).json({
+        message: "Post not found",
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching all post:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// update post controller
+
+const updatePost = async(req,res)=>{
+  try {
+    
+  } catch (error) {
+    
+  }
+}
+ 
+module.exports = { save, getSinglePost, getAllPost };
