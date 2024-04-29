@@ -1,7 +1,7 @@
 const models = require("../models");
 
 // Insert the post controller
-const save = async (req, res) => {
+const insertController = async (req, res) => {
   try {
     const post = {
       title: req.body.title,
@@ -13,11 +13,18 @@ const save = async (req, res) => {
 
     // const newPost = await Post.create(post);
     const newPost = await models.Post.create(post);
+if(newPost){
 
-    res.status(201).json({
-      message: "Post created successfully!",
-      post: newPost,
-    });
+  res.status(201).json({
+    message: "Post created successfully!",
+    post: newPost,
+  });
+}else{
+  
+  res.status(404).json({
+    message: "Something went wrong!"
+  });
+}
   } catch (error) {
     console.error("Error saving post:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -26,7 +33,7 @@ const save = async (req, res) => {
 
 // Show the post by id
 
-const getSinglePost = async (req, res) => {
+const getSinglePostController = async (req, res) => {
   const id = req.params.id;
 
   try {
@@ -43,7 +50,7 @@ const getSinglePost = async (req, res) => {
 };
 
 // show the all post
-const getAllPost = async (req, res) => {
+const getAllPostController = async (req, res) => {
   try {
     const post = await models.Post.findAll();
     if (post) {
@@ -61,7 +68,7 @@ const getAllPost = async (req, res) => {
 
 // update post controller
 
-const updatePosts = async (req, res) => {
+const updatePostsController = async (req, res) => {
   const id = req.params.id;
 
   try {
@@ -78,10 +85,19 @@ const updatePosts = async (req, res) => {
       where: { id: id, userId: userId },
     });
 
-    res.status(201).json({
-      message: "Post updated successfully!",
-      post: modifyPost,
-    });
+    if(modifyPost){
+
+      
+      res.status(201).json({
+        message: "Post updated successfully!",
+        post: modifyPost,
+      });
+    }else{
+      res.status(404).json({
+        message: "Something went wrong!",
+       
+      });
+    }
   } catch (error) {
     console.error("Error update post:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -90,7 +106,7 @@ const updatePosts = async (req, res) => {
 
 // Post delete controller
 
-const deletePosts = async(req,res)=>{
+const deletePostsController = async(req,res)=>{
   const id = req.params.id;
   const userId = 1; 
 
@@ -115,4 +131,4 @@ const deletePosts = async(req,res)=>{
   }
 }
 
-module.exports = { save, getSinglePost, getAllPost,updatePosts,deletePosts };
+module.exports = { insertController, getSinglePostController, getAllPostController,updatePostsController,deletePostsController };
