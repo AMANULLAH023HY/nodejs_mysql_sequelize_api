@@ -61,12 +61,58 @@ const getAllPost = async (req, res) => {
 
 // update post controller
 
-const updatePost = async(req,res)=>{
+const updatePosts = async (req, res) => {
+  const id = req.params.id;
+
   try {
+    const updatePost = {
+      title: req.body.title,
+      content: req.body.content,
+      imageUrl: req.body.image_url,
+      categoryId: req.body.category_id,
+    };
+
+    const userId = 1;
+
+    const modifyPost = await models.Post.update(updatePost, {
+      where: { id: id, userId: userId },
+    });
+
+    res.status(201).json({
+      message: "Post updated successfully!",
+      post: modifyPost,
+    });
+  } catch (error) {
+    console.error("Error update post:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Post delete controller
+
+const deletePosts = async(req,res)=>{
+  const id = req.params.id;
+  const userId = 1; 
+
+  try {
+
+    const deletePost = await models.Post.destroy({where:{id:id, userId:userId}}); 
+
+    if (deletePost) {
+      res.status(200).json({ 
+        message:"Post deleted successfully"
+       });
+    } else {
+      res.status(404).json({
+        message: "Post not found",
+      });
+    }
     
   } catch (error) {
-    
+    console.error("Error delete post:", error);
+    res.status(500).json({ error: "Internal server error" });
+  
   }
 }
- 
-module.exports = { save, getSinglePost, getAllPost };
+
+module.exports = { save, getSinglePost, getAllPost,updatePosts,deletePosts };
