@@ -32,7 +32,7 @@ const insertController = async (req, res) => {
       });
     }
 
-    // const newPost = await Post.create(post);
+    
     const newPost = await models.Post.create(post);
     if (newPost) {
       res.status(201).json({
@@ -97,6 +97,26 @@ const updatePostsController = async (req, res) => {
       imageUrl: req.body.image_url,
       categoryId: req.body.category_id,
     };
+
+    // Validation schema
+
+    const schema = {
+      title: { type: "string", optional: false, max: "100", min:"5" },
+      content: { type: "string", optional: false, max: "500", min:"10" },
+      categoryId: { type: "number", optional: true },
+    };
+
+    const valid = new validator();
+
+    const validationResponse = valid.validate(updatePost, schema);
+
+    if (validationResponse !== true) {
+      return res.status(400).json({
+        message: "Validation failed!",
+        error: validationResponse,
+      });
+    }
+
 
     const userId = 1;
 
