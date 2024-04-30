@@ -81,20 +81,19 @@ const signIn = async (req, res) => {
         message: "Invalid credentials!",
       });
     } else {
-        // compare the password 
+      // compare the password
       bcriptjs.compare(
         req.body.password,
         existUser.password,
         async (err, result) => {
           if (result) {
-
             // generate token
             const token = jwt.sign(
               {
                 email: existUser.email,
                 userId: existUser.id,
               },
-              "secret",
+              process.env.JWT_KEY,
               (err, token) => {
                 res.status(200).json({
                   message: "Authentication successful!",
@@ -122,6 +121,8 @@ const signIn = async (req, res) => {
 
 const logOut = async (req, res) => {
   try {
+
+    
   } catch (error) {
     res.status(500).json({
       message: "Internal server Error",
