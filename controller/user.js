@@ -119,16 +119,45 @@ const signIn = async (req, res) => {
 
 // User Logout controller
 
-const logOut = async (req, res) => {
-  try {
+// const logOut = async (req, res) => {
+//   try {
 
     
+//   } catch (error) {
+//     res.status(500).json({
+//       message: "Internal server Error",
+//       error: error,
+//     });
+//   }
+// };
+
+
+
+const logOut = async (req, res) => {
+  try {
+    // Perform logout actions here, such as clearing session data or invalidating tokens
+    // For example, if you're using session-based authentication:
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+        res.status(500).json({
+          message: "Internal server error",
+          error: err,
+        });
+      } else {
+        res.status(200).json({
+          message: "Logged out successfully",
+        });
+      }
+    });
   } catch (error) {
+    console.error("Error logging out:", error);
     res.status(500).json({
-      message: "Internal server Error",
+      message: "Internal server error",
       error: error,
     });
   }
 };
+
 
 module.exports = { signUp, signIn, logOut };

@@ -10,14 +10,14 @@ const insertController = async (req, res) => {
       content: req.body.content,
       imageUrl: req.body.image_url,
       categoryId: req.body.category_id,
-      userId: 1,
+      userId: req.userData.userId,
     };
 
     // Validation schema
 
     const schema = {
-      title: { type: "string", optional: false, max: "100", min:"5" },
-      content: { type: "string", optional: false, max: "500", min:"10" },
+      title: { type: "string", optional: false, max: "100", min: "5" },
+      content: { type: "string", optional: false, max: "500", min: "10" },
       categoryId: { type: "number", optional: true },
     };
 
@@ -31,17 +31,24 @@ const insertController = async (req, res) => {
         error: validationResponse,
       });
     }
+    // Create post base on Category
+    const category = await models.Category.findByPk(req.body.category_id);
 
-    
-    const newPost = await models.Post.create(post);
-    if (newPost) {
-      res.status(201).json({
-        message: "Post created successfully!",
-        post: newPost,
-      });
+    if (category !== null) {
+      const newPost = await models.Post.create(post);
+      if (newPost) {
+        res.status(201).json({
+          message: "Post created successfully!",
+          post: newPost,
+        });
+      } else {
+        res.status(500).json({
+          message: "Something went wrong!",
+        });
+      }
     } else {
-      res.status(404).json({
-        message: "Something went wrong!",
+      res.status(400).json({
+        message: "Invalid Category ID!",
       });
     }
   } catch (error) {
@@ -53,7 +60,7 @@ const insertController = async (req, res) => {
 // Show the post by id
 
 const getSinglePostController = async (req, res) => {
-  const id = req.params.id;
+  const id = req.params.userId;
 
   try {
     const post = await models.Post.findByPk(id);
@@ -101,8 +108,8 @@ const updatePostsController = async (req, res) => {
     // Validation schema
 
     const schema = {
-      title: { type: "string", optional: false, max: "100", min:"5" },
-      content: { type: "string", optional: false, max: "500", min:"10" },
+      title: { type: "string", optional: false, max: "100", min: "5" },
+      content: { type: "string", optional: false, max: "500", min: "10" },
       categoryId: { type: "number", optional: true },
     };
 
@@ -117,21 +124,27 @@ const updatePostsController = async (req, res) => {
       });
     }
 
-
-    const userId = 1;
-
-    const modifyPost = await models.Post.update(updatePost, {
-      where: { id: id, userId: userId },
-    });
-
-    if (modifyPost) {
-      res.status(201).json({
-        message: "Post updated successfully!",
-        post: modifyPost,
+    const userId = req.userData.userId;
+    // Update post base on category
+    const category = await models.Category.findByPk(req.body.category_id);
+    if (category !== null) {
+      const modifyPost = await models.Post.update(updatePost, {
+        where: { id: id, userId: userId },
       });
+
+      if (modifyPost) {
+        res.status(201).json({
+          message: "Post updated successfully!",
+          post: modifyPost,
+        });
+      } else {
+        res.status(500).json({
+          message: "Something went wrong!",
+        });
+      }
     } else {
-      res.status(404).json({
-        message: "Something went wrong!",
+      res.status(400).json({
+        message: "Invalid category ID!",
       });
     }
   } catch (error) {
@@ -144,7 +157,7 @@ const updatePostsController = async (req, res) => {
 
 const deletePostsController = async (req, res) => {
   const id = req.params.id;
-  const userId = 1;
+  const userId = req.userData.userId;
 
   try {
     const deletePost = await models.Post.destroy({
